@@ -208,6 +208,65 @@ void bcp_implementation::copy_path(const fs::path& p)
          v2.clear();
       }
 
+      bool modify_includes = true;
+      if(modify_includes)
+      {
+         static const boost::regex namespace_alias(" <boost");
+         regex_replace(std::back_inserter(v2), v1.begin(), v1.end(), namespace_alias,
+            " <" + m_namespace_name, boost::regex_constants::format_all);
+         std::swap(v1, v2);
+         v2.clear();
+
+         const std::string upper_namespace_name = "CM_BOOST";
+
+         {
+            static const boost::regex namespace_alias(" \"boost\\/");
+            regex_replace(std::back_inserter(v2), v1.begin(), v1.end(), namespace_alias,
+               " \"" + m_namespace_name + "/", boost::regex_constants::format_all);
+            std::swap(v1, v2);
+            v2.clear();
+         }
+
+         {
+            static const boost::regex namespace_alias("BOOST_FT_al_path boost\\/");
+            regex_replace(std::back_inserter(v2), v1.begin(), v1.end(), namespace_alias,
+               "BOOST_FT_al_path " + m_namespace_name + "/", boost::regex_constants::format_all);
+            std::swap(v1, v2);
+            v2.clear();
+         }
+
+         {
+            static const boost::regex namespace_alias("\\(boost\\/");
+            regex_replace(std::back_inserter(v2), v1.begin(), v1.end(), namespace_alias,
+               "\\(" + m_namespace_name + "/", boost::regex_constants::format_all);
+            std::swap(v1, v2);
+            v2.clear();
+         }
+
+         const std::string upper_prefix="CM";
+         {
+            static const boost::regex namespace_alias("ITERATOR_");
+            regex_replace(std::back_inserter(v2), v1.begin(), v1.end(), namespace_alias,
+               upper_prefix + "_ITERATOR_", boost::regex_constants::format_all);
+            std::swap(v1, v2);
+            v2.clear();
+         }
+         {
+            static const boost::regex namespace_alias("_HPP");
+            regex_replace(std::back_inserter(v2), v1.begin(), v1.end(), namespace_alias,
+               upper_prefix + "_HPP", boost::regex_constants::format_all);
+            std::swap(v1, v2);
+            v2.clear();
+         }
+         {
+            static const boost::regex namespace_alias("BOOST_");
+            regex_replace(std::back_inserter(v2), v1.begin(), v1.end(), namespace_alias,
+               upper_namespace_name + "_", boost::regex_constants::format_all);
+            std::swap(v1, v2);
+            v2.clear();
+         }
+      }
+
       boost::filesystem::ofstream os;
       if(m_unix_lines)
          os.open((m_dest_path / p), std::ios_base::binary | std::ios_base::out);
